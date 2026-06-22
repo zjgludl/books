@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Book Library</title>
+</head>
+<body>
+  <h1>Books</h1>
+  <ul id="list"></ul>
+
+<script>
+fetch("/books.json")
+  .then(r => r.json())
+  .then(data => {
+    const ul = document.getElementById("list");
+
+    data.forEach(book => {
+      const li = document.createElement("li");
+
+      li.innerHTML = `
+        <a href="${book.url}" target="_blank">
+          ${book.name}
+        </a>
+      `;
+
+      ul.appendChild(li);
+    });
+  });
+</script>
+</body>
+</html>
