@@ -18,6 +18,7 @@ function getTime(file) {
   }
 }
 
+// 1️⃣ 构建书籍数据
 const books = files.map(f => {
   const ts = getTime(f);
 
@@ -28,15 +29,17 @@ const books = files.map(f => {
   };
 });
 
-//
-// ⭐ 关键修改：旧 → 新（升序）
-//
+// 2️⃣ 排序（旧 → 新 or 新 → 旧你可改）
+// 👉 这里示例：新在下（旧在上）
+// books.sort((a, b) => a.ts - b.ts);
+
+// 👉 这里示例：旧在下（新在上）
 books.sort((a, b) => b.ts - a.ts);
 
-// 写 books.json
+// 3️⃣ 写 books.json（备用）
 fs.writeFileSync("books.json", JSON.stringify(books, null, 2));
 
-// NEW 标记（只对“新书”有效）
+// 4️⃣ 生成 Kindle 兼容 index.html（核心）
 const NOW = Date.now();
 const NEW_MS = 3 * 24 * 60 * 60 * 1000;
 
@@ -45,17 +48,19 @@ let html = `
 <html>
 <head>
 <meta charset="utf-8">
-<title>Books Library</title>
+<title>Book Library</title>
 </head>
+
 <body>
 
-<h1>Books Library</h1>
+<h1>📚 Book Library</h1>
 <hr>
 
-<ul>
+<ol>
 `;
 
-for (const b of books) {
+books.forEach((b, index) => {
+
   const title = b.name.replace(/\.[^/.]+$/, "");
 
   const isNew =
@@ -63,14 +68,22 @@ for (const b of books) {
 
   html += `
   <li>
-    <a href="${b.url}">${title}</a>
+    <a href="${b.url}">
+      ${title}
+    </a>
     ${isNew ? "🆕" : ""}
   </li>
   `;
-}
+});
 
 html += `
-</ul>
+</ol>
+
+<hr>
+
+<p style="font-size:12px;">
+Kindle compatible · generated at build time · no JS
+</p>
 
 </body>
 </html>
@@ -78,4 +91,4 @@ html += `
 
 fs.writeFileSync("index.html", html);
 
-console.log("OK");
+console.log("OK: index.html generated for Kindle");
