@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write   # ⭐关键修复
+      contents: write
 
     steps:
       - name: Checkout repo
@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Generate books.json
+      - name: Generate books.json + kindle.html
         run: node generate.js
 
       - name: Commit changes
@@ -29,9 +29,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add books.json
+          git add books.json kindle.html
 
-          git commit -m "auto update books index" || echo "no changes"
+          git commit -m "auto update books index + kindle page" || echo "no changes"
 
       - name: Push changes
         run: git push
