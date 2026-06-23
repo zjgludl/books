@@ -8,7 +8,6 @@ const files = fs.readdirSync(dir)
 
 function getTime(file) {
   try {
-    // ⭐ 用最后一次 commit（比 A 更稳定）
     const ts = execSync(
       `git log -1 --format=%ct -- "${dir}/${file}"`
     ).toString().trim();
@@ -29,18 +28,15 @@ const books = files.map(f => {
   };
 });
 
-// ⭐ 关键修复：稳定排序 + fallback
-books.sort((a, b) => {
-  if (a.ts === 0 && b.ts === 0) {
-    return a.name.localeCompare(b.name);
-  }
-  return b.ts - a.ts;
-});
+//
+// ⭐ 关键修改：旧 → 新（升序）
+//
+books.sort((a, b) => b.ts - a.ts );
 
-// 写 JSON
+// 写 books.json
 fs.writeFileSync("books.json", JSON.stringify(books, null, 2));
 
-// NEW 标记窗口
+// NEW 标记（只对“新书”有效）
 const NOW = Date.now();
 const NEW_MS = 3 * 24 * 60 * 60 * 1000;
 
@@ -49,7 +45,7 @@ let html = `
 <html>
 <head>
 <meta charset="utf-8">
-<title>Books</title>
+<title>Books Library</title>
 </head>
 <body>
 
