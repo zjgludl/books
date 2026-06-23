@@ -62,6 +62,11 @@ let html = `
 <title>Book Library</title>
 ${style}
 </head>
+<body>
+
+<h1>📚 Book Library</h1>
+<hr>
+<ol>
 `;
 
 
