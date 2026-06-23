@@ -1,53 +1,59 @@
 const fs = require("fs");
 const { execSync } = require("child_process");
 
-// 1️⃣ 获取所有书籍文件
-const files = fs.readdirSync("./books")
+const dir = "./books";
+
+const files = fs.readdirSync(dir)
   .filter(f => /\.(epub|pdf|mobi|azw3)$/i.test(f));
 
-// 2️⃣ 用 git log 一次性获取“添加时间”
-const log = execSync(
-  `git log --diff-filter=A --pretty=format:"%ct %H %f" -- books/`
-).toString().trim().split("\n");
+function getTime(file) {
+  try {
+    // ⭐ 用最后一次 commit（比 A 更稳定）
+    const ts = execSync(
+      `git log -1 --format=%ct -- "${dir}/${file}"`
+    ).toString().trim();
 
-// 3️⃣ 构建 file → time 映射（关键）
-const timeMap = {};
-
-for (const line of log) {
-  const [ts, hash, ...nameParts] = line.split(" ");
-  const name = nameParts.join(" ");
-  timeMap[name] = parseInt(ts) * 1000;
+    return ts ? parseInt(ts) * 1000 : 0;
+  } catch (e) {
+    return 0;
+  }
 }
 
-// 4️⃣ 组装 books
 const books = files.map(f => {
+  const ts = getTime(f);
+
   return {
     name: f,
     url: "/books/" + encodeURIComponent(f),
-    ts: timeMap[f] || 0
+    ts
   };
 });
 
-// 5️⃣ ⭐ 按时间排序（核心修复）
-books.sort((a, b) => b.ts - a.ts);
+// ⭐ 关键修复：稳定排序 + fallback
+books.sort((a, b) => {
+  if (a.ts === 0 && b.ts === 0) {
+    return a.name.localeCompare(b.name);
+  }
+  return b.ts - a.ts;
+});
 
-// 6️⃣ 写 books.json
+// 写 JSON
 fs.writeFileSync("books.json", JSON.stringify(books, null, 2));
 
-// 7️⃣ 生成 index.html（Kindle版）
+// NEW 标记窗口
 const NOW = Date.now();
-const NEW_THRESHOLD = 3 * 24 * 60 * 60 * 1000;
+const NEW_MS = 3 * 24 * 60 * 60 * 1000;
 
 let html = `
 <!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
-<title>Books Library</title>
+<title>Books</title>
 </head>
 <body>
 
-<h1>Kindle Books Library</h1>
+<h1>Books Library</h1>
 <hr>
 
 <ul>
@@ -55,7 +61,9 @@ let html = `
 
 for (const b of books) {
   const title = b.name.replace(/\.[^/.]+$/, "");
-  const isNew = NOW - b.ts < NEW_THRESHOLD;
+
+  const isNew =
+    b.ts > 0 && (NOW - b.ts < NEW_MS);
 
   html += `
   <li>
