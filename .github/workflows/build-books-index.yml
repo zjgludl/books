@@ -4,9 +4,6 @@ on:
   push:
     paths:
       - "books/**"
-
-workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
