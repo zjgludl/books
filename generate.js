@@ -47,7 +47,7 @@ let html = `
 </head>
 <body>
 
-<h1>📚 Books Library</h1>
+<h1>Kindle Books Library</h1>
 <hr>
 
 <ul>
