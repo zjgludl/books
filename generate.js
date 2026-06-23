@@ -43,21 +43,27 @@ fs.writeFileSync("books.json", JSON.stringify(books, null, 2));
 const NOW = Date.now();
 const NEW_MS = 3 * 24 * 60 * 60 * 1000;
 
+
+const style = `
+<style>
+body {
+  font-size: 20px;
+  line-height: 1.8;
+}
+li { margin: 10px 0; }
+</style>
+`;
+
 let html = `
 <!doctype html>
 <html>
 <head>
 <meta charset="utf-8">
 <title>Book Library</title>
+${style}
 </head>
-
-<body>
-
-<h1>📚 Book Library</h1>
-<hr>
-
-<ol>
 `;
+
 
 books.forEach((b, index) => {
 
