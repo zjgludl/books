@@ -31,7 +31,7 @@ const books = files.map(f => {
 //
 // ⭐ 关键修改：旧 → 新（升序）
 //
-books.sort((a, b) => a.ts - b.ts);
+books.sort((a, b) => b.ts - a.ts);
 
 // 写 books.json
 fs.writeFileSync("books.json", JSON.stringify(books, null, 2));
